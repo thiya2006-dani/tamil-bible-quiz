@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamil Bible Quiz</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #dbeafe, #ede9fe);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quiz-container {
+            background: white;
+            width: 100%;
+            max-width: 550px;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4338ca;
+            font-size: 27px;
+            margin-top: 0;
+        }
+
+        .quiz-info {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 14px;
+            color: #555;
+            margin: 20px 0 12px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #4f46e5;
+            transition: width 0.3s ease;
+        }
+
+        #question {
+            font-size: 21px;
+            line-height: 1.5;
+            color: #222;
+            margin-top: 25px;
+        }
+
+        #options {
+            display: grid;
+            gap: 12px;
+            margin: 22px 0;
+        }
+
+        .option {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            background: white;
+            color: #222;
+            font-size: 16px;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .option:hover:not(:disabled) {
+            border-color: #6366f1;
+            background: #eef2ff;
+        }
+
+        .option.correct {
+            background: #dcfce7;
+            border-color: #16a34a;
+        }
+
+        .option.wrong {
+            background: #fee2e2;
+            border-color: #dc2626;
+        }
+
+        .option:disabled {
+            cursor: default;
+            opacity: 1;
+        }
+
+        #feedback {
+            min-height: 24px;
+            line-height: 1.5;
+            font-weight: bold;
+            margin: 12px 0;
+        }
+
+        .main-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #4f46e5;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .main-button:hover:not(:disabled) {
+            background: #3730a3;
+        }
+
+        .main-button:disabled {
+            background: #a5b4fc;
+            cursor: not-allowed;
+        }
+
+        #result {
+            text-align: center;
+        }
+
+        #final-score {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* HAPPY MODE AND SAD MODE */
+
+        .result-mode {
+            padding: 22px;
+            margin: 20px 0;
+            border-radius: 18px;
+            text-align: center;
+            animation: popIn 0.6s ease;
+        }
+
+        .result-mode[hidden] {
+            display: none;
+        }
+
+        .happy-mode {
+            background: linear-gradient(135deg, #d4fc79, #96e6a1);
+            color: #14532d;
+        }
+
+        .sad-mode {
+            background: linear-gradient(135deg, #dbeafe, #e9d5ff);
+            color: #3730a3;
+        }
+
+        .result-emoji {
+            font-size: 65px;
+            margin: 10px;
+        }
+
+        .result-mode h2 {
+            font-size: 26px;
+            margin: 10px 0;
+            color: inherit;
+        }
+
+        .result-mode p {
+            font-size: 17px;
+            line-height: 1.6;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+
+            .quiz-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+
+            #question {
+                font-size: 18px;
+            }
+
+            .option {
+                font-size: 15px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="quiz-container">
+
+    <h1>ஆதியாகமம் வினாடி வினா</h1>
+
+    <!-- QUIZ AREA -->
+
+    <section id="quiz">
+
+        <div class="quiz-info">
+            <span id="question-count">Question 1 of 10</span>
+            <span id="score">Score: 0</span>
+        </div>
+
+        <div class="progress-track">
+            <div id="progress-bar"></div>
+        </div>
+
+        <h2 id="question">Loading question...</h2>
+
+        <div id="options"></div>
+
+        <p id="feedback" aria-live="polite"></p>
+
+        <button id="next-btn" class="main-button" disabled>
+            Next Question
+        </button>
+
+    </section>
+
+    <!-- FINAL RESULT AREA -->
+
+    <section id="result" class="hidden" aria-live="polite">
+
+        <h2>Quiz Completed!</h2>
+
+        <p id="final-score"></p>
+
+        <p id="message"></p>
+
+        <!-- HAPPY MODE / SAD MODE -->
+
+        <div id="resultMode" class="result-mode" hidden>
+            <div id="resultEmoji" class="result-emoji"></div>
+            <h2 id="resultTitle"></h2>
+            <p id="resultMessage"></p>
+        </div>
+
+        <button id="restart-btn" class="main-button">
+            Play Again
+        </button>
+
+    </section>
+
+</main>
+
+<script>
+    // QUESTIONS AND ANSWERS
+
+    const questions = [
+        {
+            question: "ஆதியிலே ______ வானத்தையும் பூமியையும் சிருஷ்டித்தார்",
+            options: ["கர்த்தர்", "பிதா", "இயேசு", "தேவன்"],
+            answer: 3
+        },
+        {
+            question: "ஆழத்தின் மேல் இருந்தது என்ன?",
+            options: ["ஒளி", "வெளிச்சம்", "இருள்", "இருட்டு"],
+            answer: 2
+        },
+        {
+            question: "ஜலத்தின் மேல் அசைவாடிக்கொண்டிருந்தது யார்?",
+            options: ["ஆவியானவர்", "தேவ ஆவியானவர்", "இயேசு", "பிதா"],
+            answer: 1
+        },
+        {
+            question: "வெளிச்சத்திற்கு ______ என்று பெயரிட்டார்?",
+            options: ["பகல்", "ஒளி", "சூரியன்", "நட்சத்திரம்"],
+            answer: 0
+        },
+        {
+            question: "தேவன் முதலில் உண்டாக்கியது எது?",
+            options: ["சுடர்கள்", "நட்சத்திரங்கள்", "வெளிச்சம்", "மரங்கள்"],
+            answer: 2
+        },
+        {
+            question: "ஆகாவிரிவுக்கு _____ என்று பெயரிட்டார்?",
+            options: ["ஆகாயம்", "வானம்", "மேகம்", "பூமி"],
+            answer: 1
+        },
+        {
+            question: "சேர்ந்த ஜலத்திற்கு ______ என்று பெயரிட்டார்?",
+            options: ["சமுத்திரம்", "கடல்", "ஆறு", "நீரோடை"],
+            answer: 0
+        },
+        {
+            question: "வெட்டாந்தரைக்கு _______ என்று பெயரிட்டார்?",
+            options: ["தரை", "மண்", "பூமி", "நிலம்"],
+            answer: 2
+        },
+        {
+            question: "எதன் மத்தியில் ஆகாயவிரிவை உண்டாக்கினார்?",
+            options: ["பூமி", "ஜலம்", "சூரியன்", "சந்திரன்"],
+            answer: 1
+        },
+        {
+            question: "இருளுக்கு _____ என்று பெயரிட்டார்?",
+            options: ["இருட்டு", "ஒளி", "இரவு", "பகல்"],
+            answer: 2
+        }
+    ];
+
+    // VARIABLES
+
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+
+    // HTML ELEMENTS
+
+    const quizSection = document.getElementById("quiz");
+    const resultSection = document.getElementById("result");
+
+    const questionElement = document.getElementById("question");
+    const optionsElement = document.getElementById("options");
+    const countElement = document.getElementById("question-count");
+    const scoreElement = document.getElementById("score");
+    const feedbackElement = document.getElementById("feedback");
+    const progressBar = document.getElementById("progress-bar");
+
+    const nextButton = document.getElementById("next-btn");
+    const restartButton = document.getElementById("restart-btn");
+
+    // DISPLAY A QUESTION
+
+    function showQuestion() {
+        answered = false;
+
+        const current = questions[currentQuestion];
+
+        countElement.textContent =
+            `Question ${currentQuestion + 1} of ${questions.length}`;
+
+        questionElement.textContent = current.question;
+
+        optionsElement.innerHTML = "";
+        feedbackElement.textContent = "";
+
+        nextButton.disabled = true;
+
+        nextButton.textContent =
+            currentQuestion === questions.length - 1
+                ? "See Final Score"
+                : "Next Question";
+
+        progressBar.style.width =
+            `${(currentQuestion / questions.length) * 100}%`;
+
+        current.options.forEach(function(option, index) {
+            const button = document.createElement("button");
+
+            button.className = "option";
+            button.textContent =
+                String.fromCharCode(65 + index) + ". " + option;
+
+            button.addEventListener("click", function() {
+                selectAnswer(index, button);
+            });
+
+            optionsElement.appendChild(button);
+        });
+    }
+
+    // CHECK ANSWER
+
+    function selectAnswer(selectedIndex, selectedButton) {
+        if (answered) {
+            return;
+        }
+
+        answered = true;
+
+        const correctIndex = questions[currentQuestion].answer;
+        const allOptions = optionsElement.querySelectorAll(".option");
+
+        allOptions.forEach(function(button, index) {
+            button.disabled = true;
+
+            if (index === correctIndex) {
+                button.classList.add("correct");
+            }
+        });
+
+        if (selectedIndex === correctIndex) {
+            score++;
+
+            feedbackElement.textContent = "Correct! Well done!";
+            feedbackElement.style.color = "#15803d";
+        } else {
+            selectedButton.classList.add("wrong");
+
+            feedbackElement.textContent =
+                "Incorrect! Correct answer: " +
+                questions[currentQuestion].options[correctIndex];
+
+            feedbackElement.style.color = "#dc2626";
+        }
+
+        scoreElement.textContent = "Score: " + score;
+        nextButton.disabled = false;
+    }
+
+    // NEXT QUESTION
+
+    nextButton.addEventListener("click", function() {
+        if (!answered) {
+            return;
+        }
+
+        currentQuestion++;
+
+        if (currentQuestion < questions.length) {
+            showQuestion();
+        } else {
+            showResult();
+        }
+    });
+
+    // HAPPY MODE OR SAD MODE
+
+    function showResultMode(score, totalQuestions) {
+        const percentage = (score / totalQuestions) * 100;
+
+        const resultMode = document.getElementById("resultMode");
+        const resultEmoji = document.getElementById("resultEmoji");
+        const resultTitle = document.getElementById("resultTitle");
+        const resultMessage = document.getElementById("resultMessage");
+
+        resultMode.hidden = false;
+        resultMode.classList.remove("happy-mode", "sad-mode");
+
+        if (percentage >= 70) {
+            resultMode.classList.add("happy-mode");
+
+            resultEmoji.textContent = "🥳🎉";
+            resultTitle.textContent = "Excellent!";
+            resultMessage.textContent =
+                'The horse is prepared for the day of battle, But deliverance is of the Lord.';
+        } else {
+            resultMode.classList.add("sad-mode");
+
+            resultEmoji.textContent = "😢";
+            resultTitle.textContent = "Don't Give Up!";
+            resultMessage.textContent =
+                "Keep reading the Bible and practising. You can do even better next time!";
+        }
+    }
+
+    // SHOW FINAL SCORE
+
+    function showResult() {
+        quizSection.classList.add("hidden");
+        resultSection.classList.remove("hidden");
+
+        progressBar.style.width = "100%";
+
+        document.getElementById("final-score").textContent =
+            "Your Score: " + score + " / " + questions.length;
+
+        const percentage = (score / questions.length) * 100;
+
+        let message;
+
+        if (percentage === 100) {
+            message = "Excellent! You answered every question correctly!";
+        } else if (percentage >= 70) {
+            message = "Great job! Keep learning!";
+        } else if (percentage >= 40) {
+            message = "Good effort! Practise and try again.";
+        } else {
+            message = "Keep practising. You can improve!";
+        }
+
+        document.getElementById("message").textContent = message;
+
+        // DISPLAY THE RESULT MODE
+
+        showResultMode(score, questions.length);
+    }
+
+    // RESTART THE QUIZ
+
+    restartButton.addEventListener("click", function() {
+        currentQuestion = 0;
+        score = 0;
+        answered = false;
+
+        scoreElement.textContent = "Score: 0";
+
+        resultSection.classList.add("hidden");
+        quizSection.classList.remove("hidden");
+
+        document.getElementById("resultMode").hidden = true;
+
+        showQuestion();
+    });
+
+    // START THE QUIZ
+
+    showQuestion();
+</script>
+
+</body>
+</html>
